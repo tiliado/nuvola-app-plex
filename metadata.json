@@ -1,0 +1,12 @@
+{
+    "id": "plex",
+    "name": "Plex Music Integration",
+    "maintainer_name": "SkyghiS",
+    "maintainer_link": "https://github.com/skyghis",
+    "version_major": 1,
+    "version_minor": 0,
+    "api_major": 3,
+    "api_minor": 0,
+    "categories": "AudioVideo;Audio;",
+    "home_url": "nuvola://home.html"
+}
