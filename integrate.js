@@ -29,7 +29,7 @@
 
   // Create media player component
   var player = Nuvola.$object(Nuvola.MediaPlayer);
-  
+
   // Handy aliases
   var PlaybackState = Nuvola.PlaybackState;
   var PlayerAction = Nuvola.PlayerAction;
@@ -62,6 +62,23 @@
   // Extract data from the web page
   WebApp.update = function()
   {
+    var hasClass = function (el, cls) {
+      return el && el.className && new RegExp("(\\s|^)" + cls + "(\\s|$)").test(el.className);
+    };
+    // Playback state
+    var state = PlaybackState.UNKNOWN;
+    var playerElement = document.querySelector(".player.music");
+    if (playerElement) {
+      var playElement =  playerElement.querySelector(".play-btn");
+      var pauseElement = playerElement.querySelector(".pause-btn");
+      if (hasClass(playElement, "hidden")) {
+        state = PlaybackState.PLAYING;
+      } else if (hasClass(pauseElement, "hidden")) {
+        state = PlaybackState.PAUSED;
+      }
+    }
+    player.setPlaybackState(state);
+
     var track = {
       title: null,
       artist: null,
@@ -70,7 +87,6 @@
     }
 
     player.setTrack(track);
-    player.setPlaybackState(PlaybackState.UNKNOWN);
 
     // Schedule the next update
     setTimeout(this.update.bind(this), 500);
