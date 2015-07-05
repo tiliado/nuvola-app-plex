@@ -22,10 +22,9 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-"use strict";
-
 (function(Nuvola)
 {
+"use strict";
 
   // Create media player component
   var player = Nuvola.$object(Nuvola.MediaPlayer);
@@ -47,7 +46,7 @@
     this._onPageReady();
     else
     document.addEventListener("DOMContentLoaded", this._onPageReady.bind(this));
-  }
+  };
 
   // Page is ready for magic
   WebApp._onPageReady = function()
@@ -57,7 +56,7 @@
 
     // Start update routine
     this.update();
-  }
+  };
 
   // Extract data from the web page
   WebApp.update = function()
@@ -98,12 +97,12 @@
 
     // Schedule the next update
     setTimeout(this.update.bind(this), 500);
-  }
+  };
 
   // Handler of playback actions
   WebApp._onActionActivated = function(emitter, name, param)
   {
-  }
+  };
 
   WebApp.start();
 
