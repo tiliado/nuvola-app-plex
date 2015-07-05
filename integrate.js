@@ -65,11 +65,13 @@
     var hasClass = function (el, cls) {
       return el && el.className && new RegExp("(\\s|^)" + cls + "(\\s|$)").test(el.className);
     };
+
+    var playerElement = document.querySelector(".player.music");
+
     // Playback state
     var state = PlaybackState.UNKNOWN;
-    var playerElement = document.querySelector(".player.music");
     if (playerElement) {
-      var playElement =  playerElement.querySelector(".play-btn");
+      var playElement = playerElement.querySelector(".play-btn");
       var pauseElement = playerElement.querySelector(".pause-btn");
       if (hasClass(playElement, "hidden")) {
         state = PlaybackState.PLAYING;
@@ -78,14 +80,20 @@
       }
     }
     player.setPlaybackState(state);
-
+    // Track informations
     var track = {
       title: null,
       artist: null,
       album: null,
       artLocation: null
+    };
+    if (playerElement) {
+      var posterElement = playerElement.querySelector(".media-poster");
+      track.title = posterElement.attributes['data-title'].value;
+      track.album = posterElement.attributes['data-parent-title'].value;
+      track.artist = posterElement.attributes['data-grandparent-title'].value;
+      track.artLocation = posterElement.attributes['data-image-url'].value;
     }
-
     player.setTrack(track);
 
     // Schedule the next update
