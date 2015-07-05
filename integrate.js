@@ -26,6 +26,9 @@
 {
 "use strict";
 
+var ADDRESS = "app.address";
+var ADDRESS_DEFAULT = "http://localhost:32400/web";
+
 // Create media player component
 var player = Nuvola.$object(Nuvola.MediaPlayer);
 
@@ -35,6 +38,38 @@ var PlayerAction = Nuvola.PlayerAction;
 
 // Create new WebApp prototype
 var WebApp = Nuvola.$WebApp();
+
+WebApp._onInitAppRunner = function(emitter)
+{
+    Nuvola.WebApp._onInitAppRunner.call(this, emitter);
+    Nuvola.config.setDefault(ADDRESS, ADDRESS_DEFAULT);
+    Nuvola.core.connect("InitializationForm", this);
+    Nuvola.core.connect("PreferencesForm", this);
+};
+
+WebApp._onPreferencesForm = function(emitter, values, entries)
+{
+    this.appendPreferences(values, entries);
+};
+
+WebApp._onInitializationForm = function(emitter, values, entries)
+{
+    if (!Nuvola.config.hasKey(ADDRESS))
+        this.appendPreferences(values, entries);
+};
+
+WebApp._onHomePageRequest = function(emitter, result)
+{
+    result.url = Nuvola.config.get(ADDRESS);
+};
+
+WebApp.appendPreferences = function(values, entries)
+{
+    values[ADDRESS] = Nuvola.config.get(ADDRESS);
+    entries.push(["header", "Plex"]);
+    entries.push(["label", "Address of your Plex Server"]);
+    entries.push(["string", ADDRESS, "Address"]);
+};
 
 // Initialization routines
 WebApp._onInitWebWorker = function(emitter)

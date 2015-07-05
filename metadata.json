@@ -7,6 +7,5 @@
     "version_minor": 0,
     "api_major": 3,
     "api_minor": 0,
-    "categories": "AudioVideo;Audio;",
-    "home_url": "http://prometheus.geffroy.me:32400/web/index.html"
+    "categories": "AudioVideo;Audio;"
 }
