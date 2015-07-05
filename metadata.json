@@ -8,5 +8,5 @@
     "api_major": 3,
     "api_minor": 0,
     "categories": "AudioVideo;Audio;",
-    "home_url": "nuvola://home.html"
+    "home_url": "http://prometheus.geffroy.me:32400/web/index.html"
 }
