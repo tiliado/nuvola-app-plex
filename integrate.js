@@ -117,6 +117,47 @@
   // Handler of playback actions
   WebApp._onActionActivated = function(emitter, name, param)
   {
+    var playerElement = document.querySelector(".player.music");
+    var playElement, pauseElement, previousElement, nextElement;
+    if (playerElement)
+    {
+      playElement = playerElement.querySelector(".play-btn");
+      pauseElement = playerElement.querySelector(".pause-btn");
+      previousElement = playerElement.querySelector(".previous-btn");
+      nextElement = playerElement.querySelector(".next-btn");
+    }
+
+    switch (name)
+    {
+    case PlayerAction.TOGGLE_PLAY:
+      if (playerElement)
+      {
+        if (this._isAvailable(playElement))
+        {
+          Nuvola.clickOnElement(playElement);
+        }
+        else
+        {
+          Nuvola.clickOnElement(pauseElement);
+        }
+      }
+     break;
+    case PlayerAction.PLAY:
+      Nuvola.clickOnElement(playElement);
+      break;
+    case PlayerAction.PAUSE:
+      Nuvola.clickOnElement(pauseElement);
+      break;
+    case PlayerAction.STOP:
+        Nuvola.clickOnElement(playerElement.querySelector(".stop-btn"));
+        break;
+    case PlayerAction.PREV_SONG:
+        Nuvola.clickOnElement(previousElement);
+        break;
+    case PlayerAction.NEXT_SONG:
+        Nuvola.clickOnElement(nextElement);
+        break;
+    }
   };
 
   WebApp.start();
