@@ -58,27 +58,33 @@
     this.update();
   };
 
+  WebApp._isHiddenOrDisabled = function (el) {
+    var regex = new RegExp("(\\s|^)(disabled|hidden)(\\s|$)");
+    return el && el.className && regex.test(el.className);
+  };
+
   // Extract data from the web page
   WebApp.update = function()
   {
-    var hasClass = function (el, cls) {
-      return el && el.className && new RegExp("(\\s|^)" + cls + "(\\s|$)").test(el.className);
-    };
-
     var playerElement = document.querySelector(".player.music");
-
+    var playElement, pauseElement, previousElement, nextElement;
+    if (playerElement) {
+      playElement = playerElement.querySelector(".play-btn");
+      pauseElement = playerElement.querySelector(".pause-btn");
+      previousElement = playerElement.querySelector(".previous-btn");
+      nextElement = playerElement.querySelector(".next-btn");
+    }
     // Playback state
     var state = PlaybackState.UNKNOWN;
     if (playerElement) {
-      var playElement = playerElement.querySelector(".play-btn");
-      var pauseElement = playerElement.querySelector(".pause-btn");
-      if (hasClass(playElement, "hidden")) {
+      if (this._isHiddenOrDisabled(playElement)) {
         state = PlaybackState.PLAYING;
-      } else if (hasClass(pauseElement, "hidden")) {
+      } else if (this._isHiddenOrDisabled(pauseElement)) {
         state = PlaybackState.PAUSED;
       }
     }
     player.setPlaybackState(state);
+
     // Track informations
     var track = {
       title: null,
@@ -94,6 +100,12 @@
       track.artLocation = posterElement.attributes['data-image-url'].value;
     }
     player.setTrack(track);
+
+    // Player actions
+    player.setCanPlay(playerElement && !this._isHiddenOrDisabled(playElement));
+    player.setCanPause(playerElement && !this._isHiddenOrDisabled(pauseElement));
+    player.setCanGoPrev(playerElement && !this._isHiddenOrDisabled(previousElement));
+    player.setCanGoNext(playerElement && !this._isHiddenOrDisabled(nextElement));
 
     // Schedule the next update
     setTimeout(this.update.bind(this), 500);
