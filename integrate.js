@@ -58,9 +58,18 @@
     this.update();
   };
 
-  WebApp._isHiddenOrDisabled = function (el) {
-    var regex = new RegExp("(\\s|^)(disabled|hidden)(\\s|$)");
-    return el && el.className && regex.test(el.className);
+  WebApp._isAvailable = function (el)
+  {
+    return el && el.className && !/(:?\s|^)(:?disabled|hidden)(:?\s|$)/.test(el.className);
+  };
+
+  WebApp._getAttribute = function (el, attribute)
+  {
+    if (el && el.attributes && el.attributes[attribute])
+    {
+      return  el.attributes[attribute].value;
+    }
+    return null;
   };
 
   // Extract data from the web page
@@ -68,7 +77,8 @@
   {
     var playerElement = document.querySelector(".player.music");
     var playElement, pauseElement, previousElement, nextElement;
-    if (playerElement) {
+    if (playerElement)
+    {
       playElement = playerElement.querySelector(".play-btn");
       pauseElement = playerElement.querySelector(".pause-btn");
       previousElement = playerElement.querySelector(".previous-btn");
@@ -76,37 +86,30 @@
     }
     // Playback state
     var state = PlaybackState.UNKNOWN;
-    if (playerElement) {
-      if (this._isHiddenOrDisabled(playElement)) {
+    if (playerElement)
+    {
+      if (playElement && !this._isAvailable(playElement))
+      {
         state = PlaybackState.PLAYING;
-      } else if (this._isHiddenOrDisabled(pauseElement)) {
+      } else if (pauseElement && !this._isAvailable(pauseElement))
+      {
         state = PlaybackState.PAUSED;
       }
     }
     player.setPlaybackState(state);
-
     // Track informations
-    var track = {
-      title: null,
-      artist: null,
-      album: null,
-      artLocation: null
-    };
-    if (playerElement) {
-      var posterElement = playerElement.querySelector(".media-poster");
-      track.title = posterElement.attributes['data-title'].value;
-      track.album = posterElement.attributes['data-parent-title'].value;
-      track.artist = posterElement.attributes['data-grandparent-title'].value;
-      track.artLocation = posterElement.attributes['data-image-url'].value;
-    }
-    player.setTrack(track);
-
+    var posterElement = playerElement ? playerElement.querySelector('.media-poster') : null;
+    player.setTrack({
+      title:       this._getAttribute(posterElement, 'data-title'),
+      artist:      this._getAttribute(posterElement, 'data-grandparent-title'),
+      album:       this._getAttribute(posterElement, 'data-parent-title'),
+      artLocation: this._getAttribute(posterElement, 'data-image-url')
+    });
     // Player actions
-    player.setCanPlay(playerElement && !this._isHiddenOrDisabled(playElement));
-    player.setCanPause(playerElement && !this._isHiddenOrDisabled(pauseElement));
-    player.setCanGoPrev(playerElement && !this._isHiddenOrDisabled(previousElement));
-    player.setCanGoNext(playerElement && !this._isHiddenOrDisabled(nextElement));
-
+    player.setCanPlay  (this._isAvailable(playElement));
+    player.setCanPause (this._isAvailable(pauseElement));
+    player.setCanGoPrev(this._isAvailable(previousElement));
+    player.setCanGoNext(this._isAvailable(nextElement));
     // Schedule the next update
     setTimeout(this.update.bind(this), 500);
   };
