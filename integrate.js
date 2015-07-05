@@ -26,140 +26,129 @@
 {
 "use strict";
 
-  // Create media player component
-  var player = Nuvola.$object(Nuvola.MediaPlayer);
+// Create media player component
+var player = Nuvola.$object(Nuvola.MediaPlayer);
 
-  // Handy aliases
-  var PlaybackState = Nuvola.PlaybackState;
-  var PlayerAction = Nuvola.PlayerAction;
+// Handy aliases
+var PlaybackState = Nuvola.PlaybackState;
+var PlayerAction = Nuvola.PlayerAction;
 
-  // Create new WebApp prototype
-  var WebApp = Nuvola.$WebApp();
+// Create new WebApp prototype
+var WebApp = Nuvola.$WebApp();
 
-  // Initialization routines
-  WebApp._onInitWebWorker = function(emitter)
-  {
+// Initialization routines
+WebApp._onInitWebWorker = function(emitter)
+{
     Nuvola.WebApp._onInitWebWorker.call(this, emitter);
 
     var state = document.readyState;
     if (state === "interactive" || state === "complete")
-    this._onPageReady();
+        this._onPageReady();
     else
-    document.addEventListener("DOMContentLoaded", this._onPageReady.bind(this));
-  };
+        document.addEventListener("DOMContentLoaded", this._onPageReady.bind(this));
+};
 
-  // Page is ready for magic
-  WebApp._onPageReady = function()
-  {
+// Page is ready for magic
+WebApp._onPageReady = function()
+{
     // Connect handler for signal ActionActivated
     Nuvola.actions.connect("ActionActivated", this);
 
     // Start update routine
     this.update();
-  };
+};
 
-  WebApp._isAvailable = function (el)
-  {
+WebApp._isAvailable = function (el)
+{
     return el && el.className && !/(:?\s|^)(:?disabled|hidden)(:?\s|$)/.test(el.className);
-  };
+};
 
-  WebApp._getAttribute = function (el, attribute)
-  {
+WebApp._getAttribute = function (el, attribute)
+{
     if (el && el.attributes && el.attributes[attribute])
-    {
-      return  el.attributes[attribute].value;
-    }
+        return  el.attributes[attribute].value;
     return null;
-  };
+};
 
-  // Extract data from the web page
-  WebApp.update = function()
-  {
+// Extract data from the web page
+WebApp.update = function()
+{
     var playerElement = document.querySelector(".player.music");
     var playElement, pauseElement, previousElement, nextElement;
     if (playerElement)
     {
-      playElement = playerElement.querySelector(".play-btn");
-      pauseElement = playerElement.querySelector(".pause-btn");
-      previousElement = playerElement.querySelector(".previous-btn");
-      nextElement = playerElement.querySelector(".next-btn");
+        playElement = playerElement.querySelector(".play-btn");
+        pauseElement = playerElement.querySelector(".pause-btn");
+        previousElement = playerElement.querySelector(".previous-btn");
+        nextElement = playerElement.querySelector(".next-btn");
     }
     // Playback state
     var state = PlaybackState.UNKNOWN;
     if (playerElement)
     {
-      if (playElement && !this._isAvailable(playElement))
-      {
-        state = PlaybackState.PLAYING;
-      } else if (pauseElement && !this._isAvailable(pauseElement))
-      {
-        state = PlaybackState.PAUSED;
-      }
+        if (playElement && !this._isAvailable(playElement))
+            state = PlaybackState.PLAYING;
+        else if (pauseElement && !this._isAvailable(pauseElement))
+            state = PlaybackState.PAUSED;
     }
     player.setPlaybackState(state);
     // Track informations
     var posterElement = playerElement ? playerElement.querySelector('.media-poster') : null;
     player.setTrack({
-      title:       this._getAttribute(posterElement, 'data-title'),
-      artist:      this._getAttribute(posterElement, 'data-grandparent-title'),
-      album:       this._getAttribute(posterElement, 'data-parent-title'),
-      artLocation: this._getAttribute(posterElement, 'data-image-url')
+        title:       this._getAttribute(posterElement, 'data-title'),
+        artist:      this._getAttribute(posterElement, 'data-grandparent-title'),
+        album:       this._getAttribute(posterElement, 'data-parent-title'),
+        artLocation: this._getAttribute(posterElement, 'data-image-url')
     });
     // Player actions
-    player.setCanPlay  (this._isAvailable(playElement));
-    player.setCanPause (this._isAvailable(pauseElement));
+    player.setCanPlay(this._isAvailable(playElement));
+    player.setCanPause(this._isAvailable(pauseElement));
     player.setCanGoPrev(this._isAvailable(previousElement));
     player.setCanGoNext(this._isAvailable(nextElement));
     // Schedule the next update
     setTimeout(this.update.bind(this), 500);
-  };
+};
 
-  // Handler of playback actions
-  WebApp._onActionActivated = function(emitter, name, param)
-  {
+// Handler of playback actions
+WebApp._onActionActivated = function(emitter, name, param)
+{
     var playerElement = document.querySelector(".player.music");
     var playElement, pauseElement, previousElement, nextElement;
     if (playerElement)
     {
-      playElement = playerElement.querySelector(".play-btn");
-      pauseElement = playerElement.querySelector(".pause-btn");
-      previousElement = playerElement.querySelector(".previous-btn");
-      nextElement = playerElement.querySelector(".next-btn");
+        playElement = playerElement.querySelector(".play-btn");
+        pauseElement = playerElement.querySelector(".pause-btn");
+        previousElement = playerElement.querySelector(".previous-btn");
+        nextElement = playerElement.querySelector(".next-btn");
     }
 
     switch (name)
     {
-    case PlayerAction.TOGGLE_PLAY:
-      if (playerElement)
-      {
-        if (this._isAvailable(playElement))
-        {
-          Nuvola.clickOnElement(playElement);
-        }
-        else
-        {
-          Nuvola.clickOnElement(pauseElement);
-        }
-      }
-     break;
-    case PlayerAction.PLAY:
-      Nuvola.clickOnElement(playElement);
-      break;
-    case PlayerAction.PAUSE:
-      Nuvola.clickOnElement(pauseElement);
-      break;
-    case PlayerAction.STOP:
-        Nuvola.clickOnElement(playerElement.querySelector(".stop-btn"));
-        break;
-    case PlayerAction.PREV_SONG:
-        Nuvola.clickOnElement(previousElement);
-        break;
-    case PlayerAction.NEXT_SONG:
-        Nuvola.clickOnElement(nextElement);
-        break;
+        case PlayerAction.TOGGLE_PLAY:
+            if (playerElement)
+                if (this._isAvailable(playElement))
+                    Nuvola.clickOnElement(playElement);
+                else
+                    Nuvola.clickOnElement(pauseElement);
+            break;
+        case PlayerAction.PLAY:
+            Nuvola.clickOnElement(playElement);
+            break;
+        case PlayerAction.PAUSE:
+            Nuvola.clickOnElement(pauseElement);
+            break;
+        case PlayerAction.STOP:
+            Nuvola.clickOnElement(playerElement.querySelector(".stop-btn"));
+            break;
+        case PlayerAction.PREV_SONG:
+            Nuvola.clickOnElement(previousElement);
+            break;
+        case PlayerAction.NEXT_SONG:
+            Nuvola.clickOnElement(nextElement);
+            break;
     }
-  };
+};
 
-  WebApp.start();
+WebApp.start();
 
 })(this);  // function(Nuvola)
