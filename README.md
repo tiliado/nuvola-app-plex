@@ -7,7 +7,7 @@ Integration of Plex into your linux desktop via
 Support
 -------
 
-Report bugs and issues at <https://github.com/tiliado/nuvola-app-plex/issues>.
+Report bugs and issues at <https://github.com/skyghis/nuvola-app-plex/issues>.
 
 
 Installation
