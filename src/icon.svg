@@ -48,8 +48,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="4"
-     inkscape:cx="27.550982"
-     inkscape:cy="73.333484"
+     inkscape:cx="68.827822"
+     inkscape:cy="-32.120958"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -57,11 +57,11 @@
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:window-width="1269"
-     inkscape:window-height="871"
-     inkscape:window-x="376"
-     inkscape:window-y="70"
-     inkscape:window-maximized="0" />
+     inkscape:window-width="1920"
+     inkscape:window-height="1056"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1" />
   <metadata
      id="metadata3137">
     <rdf:RDF>
@@ -80,7 +80,7 @@
      id="layer1"
      transform="translate(-343.03215,-500.43979)">
     <g
-       id="g4307">
+       id="g4149">
       <rect
          ry="2.9927244"
          y="500.43979"
@@ -94,10 +94,10 @@
          inkscape:connector-curvature="0"
          id="path4169"
          d="m 361.88833,508.78498 13.38319,0.0214 0.50283,0.7808 14.26998,22.15874 -14.70868,22.96093 -13.42594,0 14.62316,-22.93955 z"
-         style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+         style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
       <path
-         inkscape:transform-center-y="12.772587"
-         inkscape:transform-center-x="-9.3349919"
+         inkscape:transform-center-y="12.309325"
+         inkscape:transform-center-x="-5.5117074"
          style="opacity:0.33333333;fill:#000000;fill-opacity:1;stroke:none"
          d="m 386.57868,535.67939 -15.94199,-25.82219 6.71577,-0.27478 11.94195,20.894 z"
          id="rect4130-1"
@@ -107,7 +107,7 @@
          inkscape:transform-center-y="-12.772587"
          inkscape:transform-center-x="-9.3349919"
          style="opacity:0.33333333;fill:#000000;fill-opacity:1;stroke:none"
-         d="m 385.89528,527.48609 -15.94199,25.82219 6.71577,0.27478 11.94195,-20.894 z"
+         d="m 386.02786,527.3977 -15.94199,25.82219 6.71577,0.27478 11.94195,-20.894 z"
          id="rect4130-1-4"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="ccccc" />
