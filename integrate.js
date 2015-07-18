@@ -109,13 +109,15 @@ WebApp._getAttribute = function (el, attribute)
 WebApp.update = function()
 {
     var playerElement = document.querySelector(".player.music");
-    var playElement, pauseElement, previousElement, nextElement;
+    var playElement, pauseElement, previousElement, nextElement, shuffleElement;
     if (playerElement)
     {
         playElement = playerElement.querySelector(".play-btn");
         pauseElement = playerElement.querySelector(".pause-btn");
         previousElement = playerElement.querySelector(".previous-btn");
         nextElement = playerElement.querySelector(".next-btn");
+    } else {
+        shuffleElement = document.querySelector(".action-bar .play-shuffled-btn");
     }
     // Playback state
     var state = PlaybackState.UNKNOWN;
@@ -136,7 +138,7 @@ WebApp.update = function()
         artLocation: this._getAttribute(posterElement, 'data-image-url')
     });
     // Player actions
-    player.setCanPlay(this._isAvailable(playElement));
+    player.setCanPlay(this._isAvailable(playElement) || this._isAvailable(shuffleElement));
     player.setCanPause(this._isAvailable(pauseElement));
     player.setCanGoPrev(this._isAvailable(previousElement));
     player.setCanGoNext(this._isAvailable(nextElement));
@@ -160,11 +162,17 @@ WebApp._onActionActivated = function(emitter, name, param)
     switch (name)
     {
         case PlayerAction.TOGGLE_PLAY:
-            if (playerElement)
+            if (playerElement) {
                 if (this._isAvailable(playElement))
                     Nuvola.clickOnElement(playElement);
                 else
                     Nuvola.clickOnElement(pauseElement);
+            } else {
+                var shuffleElement = document.querySelector(".action-bar .play-shuffled-btn");
+                if (shuffleElement) {
+                    Nuvola.clickOnElement(shuffleElement);
+                }
+            }
             break;
         case PlayerAction.PLAY:
             Nuvola.clickOnElement(playElement);
