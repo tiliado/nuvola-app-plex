@@ -116,7 +116,9 @@ WebApp.update = function()
         pauseElement = playerElement.querySelector(".pause-btn");
         previousElement = playerElement.querySelector(".previous-btn");
         nextElement = playerElement.querySelector(".next-btn");
-    } else {
+    }
+    else
+    {
         shuffleElement = document.querySelector(".action-bar .play-shuffled-btn");
     }
     // Playback state
@@ -162,14 +164,18 @@ WebApp._onActionActivated = function(emitter, name, param)
     switch (name)
     {
         case PlayerAction.TOGGLE_PLAY:
-            if (playerElement) {
+            if (playerElement)
+            {
                 if (this._isAvailable(playElement))
                     Nuvola.clickOnElement(playElement);
                 else
                     Nuvola.clickOnElement(pauseElement);
-            } else {
+            }
+            else
+            {
                 var shuffleElement = document.querySelector(".action-bar .play-shuffled-btn");
-                if (shuffleElement) {
+                if (shuffleElement)
+                {
                     Nuvola.clickOnElement(shuffleElement);
                 }
             }
