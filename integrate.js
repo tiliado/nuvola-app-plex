@@ -28,6 +28,7 @@
 
 var ADDRESS = "app.address";
 var ADDRESS_DEFAULT = "http://localhost:32400/web";
+var AVAILABLE_CLASS_REGEX = /(?:\s|^)(?:disabled|hidden)(?:\s|$)/;
 
 // Create media player component
 var player = Nuvola.$object(Nuvola.MediaPlayer);
@@ -95,7 +96,7 @@ WebApp._onPageReady = function()
 
 WebApp._isAvailable = function (el)
 {
-    return el && el.className && !/(:?\s|^)(:?disabled|hidden)(:?\s|$)/.test(el.className);
+    return el && el.className && !AVAILABLE_CLASS_REGEX.test(el.className);
 };
 
 WebApp._getAttribute = function (el, attribute)
