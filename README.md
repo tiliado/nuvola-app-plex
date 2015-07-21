@@ -1,7 +1,7 @@
-Plex Nuvola Player App
+Plex Music Nuvola Player App
 =============================
 
-Integration of Plex into your linux desktop via
+Integration of Plex Music into your linux desktop via
 [Nuvola Player](https://github.com/tiliado/nuvolaplayer).
 
 Support
