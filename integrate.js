@@ -133,12 +133,12 @@ WebApp.update = function()
     }
     player.setPlaybackState(state);
     // Track informations
-    var posterElement = playerElement ? playerElement.querySelector('.media-poster') : null;
+    var posterElement = playerElement ? playerElement.querySelector(".media-poster") : null;
     player.setTrack({
-        title:       this._getAttribute(posterElement, 'data-title'),
-        artist:      this._getAttribute(posterElement, 'data-grandparent-title'),
-        album:       this._getAttribute(posterElement, 'data-parent-title'),
-        artLocation: this._getAttribute(posterElement, 'data-image-url')
+        title:       this._getAttribute(posterElement, "data-title"),
+        artist:      this._getAttribute(posterElement, "data-grandparent-title"),
+        album:       this._getAttribute(posterElement, "data-parent-title"),
+        artLocation: this._getAttribute(posterElement, "data-image-url")
     });
     // Player actions
     player.setCanPlay(this._isAvailable(playElement) || this._isAvailable(shuffleElement));
