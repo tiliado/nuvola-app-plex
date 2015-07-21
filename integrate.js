@@ -106,34 +106,39 @@ WebApp._getAttribute = function (el, attribute)
     return null;
 };
 
-// Extract data from the web page
-WebApp.update = function()
+WebApp._getPlayerElements = function()
 {
-    var playerElement = document.querySelector(".player.music");
-    var playElement, pauseElement, previousElement, nextElement, shuffleElement;
-    if (playerElement)
+    var elements = { player: document.querySelector(".player.music") };
+    if (elements.player)
     {
-        playElement = playerElement.querySelector(".play-btn");
-        pauseElement = playerElement.querySelector(".pause-btn");
-        previousElement = playerElement.querySelector(".previous-btn");
-        nextElement = playerElement.querySelector(".next-btn");
+        elements.play     = elements.player.querySelector(".play-btn");
+        elements.pause    = elements.player.querySelector(".pause-btn");
+        elements.previous = elements.player.querySelector(".previous-btn");
+        elements.next     = elements.player.querySelector(".next-btn");
+        elements.stop     = elements.player.querySelector(".stop-btn");
     }
     else
     {
-        shuffleElement = document.querySelector(".action-bar .play-shuffled-btn");
+        elements.shuffle = document.querySelector(".action-bar .play-shuffled-btn");
     }
+    return elements;
+};
+
+// Extract data from the web page
+WebApp.update = function()
+{
+    var playerElements = this._getPlayerElements();
     // Playback state
     var state = PlaybackState.UNKNOWN;
-    if (playerElement)
-    {
-        if (playElement && !this._isAvailable(playElement))
-            state = PlaybackState.PLAYING;
-        else if (pauseElement && !this._isAvailable(pauseElement))
-            state = PlaybackState.PAUSED;
-    }
+    if (playerElements.play && !this._isAvailable(playerElements.play))
+        state = PlaybackState.PLAYING;
+    else if (playerElements.pause && !this._isAvailable(playerElements.pause))
+        state = PlaybackState.PAUSED;
     player.setPlaybackState(state);
     // Track informations
-    var posterElement = playerElement ? playerElement.querySelector(".media-poster") : null;
+    var posterElement = null;
+    if (playerElements.player)
+        posterElement = playerElements.player.querySelector(".media-poster");
     player.setTrack({
         title:       this._getAttribute(posterElement, "data-title"),
         artist:      this._getAttribute(posterElement, "data-grandparent-title"),
@@ -141,10 +146,10 @@ WebApp.update = function()
         artLocation: this._getAttribute(posterElement, "data-image-url")
     });
     // Player actions
-    player.setCanPlay(this._isAvailable(playElement) || this._isAvailable(shuffleElement));
-    player.setCanPause(this._isAvailable(pauseElement));
-    player.setCanGoPrev(this._isAvailable(previousElement));
-    player.setCanGoNext(this._isAvailable(nextElement));
+    player.setCanPlay(this._isAvailable(playerElements.play) || this._isAvailable(playerElements.shuffle));
+    player.setCanPause(this._isAvailable(playerElements.pause));
+    player.setCanGoPrev(this._isAvailable(playerElements.previous));
+    player.setCanGoNext(this._isAvailable(playerElements.next));
     // Schedule the next update
     setTimeout(this.update.bind(this), 500);
 };
@@ -152,49 +157,34 @@ WebApp.update = function()
 // Handler of playback actions
 WebApp._onActionActivated = function(emitter, name, param)
 {
-    var playerElement = document.querySelector(".player.music");
-    var playElement, pauseElement, previousElement, nextElement;
-    if (playerElement)
-    {
-        playElement = playerElement.querySelector(".play-btn");
-        pauseElement = playerElement.querySelector(".pause-btn");
-        previousElement = playerElement.querySelector(".previous-btn");
-        nextElement = playerElement.querySelector(".next-btn");
-    }
-
+    var playerElements = this._getPlayerElements();
     switch (name)
     {
         case PlayerAction.TOGGLE_PLAY:
-            if (playerElement)
-            {
-                if (this._isAvailable(playElement))
-                    Nuvola.clickOnElement(playElement);
-                else
-                    Nuvola.clickOnElement(pauseElement);
-            }
+            if (this._isAvailable(playerElements.play))
+                Nuvola.clickOnElement(playerElements.play);
+            else if (this._isAvailable(playerElements.pause))
+                Nuvola.clickOnElement(playerElements.pause);
             else
-            {
-                var shuffleElement = document.querySelector(".action-bar .play-shuffled-btn");
-                if (shuffleElement)
-                {
-                    Nuvola.clickOnElement(shuffleElement);
-                }
-            }
+                Nuvola.clickOnElement(playerElements.shuffle);
             break;
         case PlayerAction.PLAY:
-            Nuvola.clickOnElement(playElement);
+            if (this._isAvailable(playerElements.play))
+                Nuvola.clickOnElement(playerElements.play);
+            else
+                Nuvola.clickOnElement(playerElements.shuffle);
             break;
         case PlayerAction.PAUSE:
-            Nuvola.clickOnElement(pauseElement);
+            Nuvola.clickOnElement(playerElements.pause);
             break;
         case PlayerAction.STOP:
-            Nuvola.clickOnElement(playerElement.querySelector(".stop-btn"));
+            Nuvola.clickOnElement(playerElements.stop);
             break;
         case PlayerAction.PREV_SONG:
-            Nuvola.clickOnElement(previousElement);
+            Nuvola.clickOnElement(playerElements.previous);
             break;
         case PlayerAction.NEXT_SONG:
-            Nuvola.clickOnElement(nextElement);
+            Nuvola.clickOnElement(playerElements.next);
             break;
     }
 };
