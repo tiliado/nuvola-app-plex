@@ -7,5 +7,6 @@
     "version_minor": 1,
     "api_major": 3,
     "api_minor": 0,
-    "categories": "AudioVideo;Audio;"
+    "categories": "AudioVideo;Audio;",
+    "license": "2-Clause BSD"
 }
