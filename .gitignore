@@ -6,3 +6,8 @@ eu.tiliado.NuvolaAppPlex.desktop
 metadata.json
 nuvola-app-plex
 plex.tar.gz
+eu.tiliado.NuvolaAppPlex.service
+eu.tiliado.WebRuntimeAppPlex.appdata.xml
+eu.tiliado.WebRuntimeAppPlex.desktop
+eu.tiliado.WebRuntimeAppPlex.service
+nuvola-app-plex.metainfo.xml
