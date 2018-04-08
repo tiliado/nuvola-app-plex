@@ -1,11 +1,13 @@
 Changelog
 =========
 
+  * Switched to Chromium engine.
+
 1.3 - February 12th, 2017
 -------------------------
 
   * Ported to use Nuvola SDK.
-  
+
 1.2 - September 12th, 2016
 --------------------------
 

@@ -5,8 +5,9 @@
   "maintainer_link": "https://github.com/skyghis",
   "version_major": 1,
   "version_minor": 3,
-  "api_major": 3,
-  "api_minor": 0,
+  "api_major": 4,
+  "api_minor": 10,
+  "requirements": "Chromium[65] Codec[MP3] Feature[MSE]",
   "categories": "AudioVideo;Audio;",
   "license": "2-Clause BSD",
   "build": {
