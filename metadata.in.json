@@ -1,8 +1,8 @@
 {
   "id": "plex",
   "name": "Plex Music",
-  "maintainer_name": "SkyghiS",
-  "maintainer_link": "https://github.com/skyghis",
+  "maintainer_name": "Jiří Janoušek",
+  "maintainer_link": "https://github.com/fenryxo",
   "version_major": 1,
   "version_minor": 3,
   "api_major": 4,
