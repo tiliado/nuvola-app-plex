@@ -26,9 +26,12 @@
 (function (Nuvola) {
   'use strict'
 
+  var _ = Nuvola.Translate.gettext
+  var ngettext = Nuvola.Translate.ngettext
+
+  var ACTION_RATING = 'rating'
   var ADDRESS = 'app.address'
   var ADDRESS_DEFAULT = 'http://localhost:32400/web'
-  var AVAILABLE_CLASS_REGEX = /(?:\s|^)(?:disabled|hidden)(?:\s|$)/
 
   // Create media player component
   var player = Nuvola.$object(Nuvola.MediaPlayer)
@@ -37,7 +40,6 @@
   var PlaybackState = Nuvola.PlaybackState
   var PlayerAction = Nuvola.PlayerAction
 
-  // Create new WebApp prototype
   var WebApp = Nuvola.$WebApp()
 
   WebApp._onInitAppRunner = function (emitter) {
@@ -45,6 +47,19 @@
     Nuvola.config.setDefault(ADDRESS, ADDRESS_DEFAULT)
     Nuvola.core.connect('InitializationForm', this)
     Nuvola.core.connect('PreferencesForm', this)
+
+    var ratingOptions = []
+    for (var stars = 0; stars < 6; stars++) {
+      ratingOptions.push([
+        stars, // stateId
+        /// Star rating, {1} is a placeholder for a number
+        Nuvola.format(ngettext('Rating: {1} star', 'Rating: {1} stars', stars), stars), // label
+        null, // mnemo_label
+        null, // icon
+        null  // keybinding
+      ])
+    }
+    Nuvola.actions.addRadioAction('playback', 'win', ACTION_RATING, 0, ratingOptions)
   }
 
   WebApp._onPreferencesForm = function (emitter, values, entries) {
@@ -58,17 +73,16 @@
   }
 
   WebApp._onHomePageRequest = function (emitter, result) {
-    result.url = Nuvola.config.get(ADDRESS)
+    result.url = Nuvola.config.get(ADDRESS) || ADDRESS_DEFAULT
   }
 
   WebApp.appendPreferences = function (values, entries) {
     values[ADDRESS] = Nuvola.config.get(ADDRESS)
     entries.push(['header', 'Plex'])
-    entries.push(['label', 'Address of your Plex Server'])
-    entries.push(['string', ADDRESS, 'Address'])
+    entries.push(['label', _('Address of your Plex Server')])
+    entries.push(['string', ADDRESS, _('Address')])
   }
 
-// Initialization routines
   WebApp._onInitWebWorker = function (emitter) {
     Nuvola.WebApp._onInitWebWorker.call(this, emitter)
 
@@ -78,98 +92,166 @@
     } else {
       document.addEventListener('DOMContentLoaded', this._onPageReady.bind(this))
     }
+    player.connect('RatingSet', this)
   }
 
-// Page is ready for magic
   WebApp._onPageReady = function () {
-    // Connect handler for signal ActionActivated
+    this.albumArt = {url: null, data: null}
     Nuvola.actions.connect('ActionActivated', this)
 
-    // Start update routine
+    var actions = []
+    for (var i = 0; i <= 5; i++) {
+      actions.push(ACTION_RATING + '::' + i)
+    }
+    player.addExtraActions(actions)
+
     this.update()
   }
 
-  WebApp._isAvailable = function (el) {
-    return el && el.className && !AVAILABLE_CLASS_REGEX.test(el.className)
-  }
-
-  WebApp._getAttribute = function (el, attribute) {
-    if (el && el.attributes && el.attributes[attribute]) {
-      return el.attributes[attribute].value
-    }
-    return null
+  WebApp._downloadAlbumArt = function (url) {
+    this.albumArt.url = url
+    this.albumArt.data = null
+    Nuvola.exportImageAsBase64(url, (data) => {
+      if (this.albumArt.url === url) {
+        this.albumArt.data = data
+      }
+    })
   }
 
   WebApp._getPlayerElements = function () {
-    var elements = { player: document.querySelector('.player.music') }
+    var elements = { player: document.querySelector('div[data-qa-id="playerControlsContainer"]') }
+    var getButton = (name) => {
+      var elm = elements.player && elements.player.querySelector('button[data-qa-id="' + name + 'Button"]')
+      return elm && !elm.disabled ? elm : null
+    }
+    elements.play = getButton('resume')
+    elements.pause = getButton('pause')
+    elements.previous = getButton('previous')
+    elements.next = getButton('next')
     if (elements.player) {
-      elements.play = elements.player.querySelector('.play-btn')
-      elements.pause = elements.player.querySelector('.pause-btn')
-      elements.previous = elements.player.querySelector('.previous-btn')
-      elements.next = elements.player.querySelector('.next-btn')
-      elements.stop = elements.player.querySelector('.stop-btn')
-    } else {
-      elements.shuffle = document.querySelector('.action-bar .play-shuffled-btn')
+      elements.mediaDuration = elements.player.querySelector('button[data-qa-id="mediaDuration"]')
+      elements.trackSeekBar = document.querySelector('div[class*="SeekBar-seekBarTrack"]')
+      elements.volumeSliderButton = elements.player.querySelector('button[role="slider"][aria-valuemax="100"]')
+      elements.ratingButton = elements.player.querySelector('button[role="slider"][aria-valuemax="5"]')
+      elements.volumeSlider = elements.player.querySelector('div[class*="VolumeSlider-track"]')
+      elements.ratingSlider = elements.player.querySelector('div[class*="StarRating-track"]')
+
+      if (elements.ratingSlider) {
+        // Cache the current rating when mouse enters the rating slider because its value then follows mouse cursor.
+        let watch = elements.ratingSlider.parentNode
+        if (!watch.getAttribute('nuvola-watch')) {
+          watch.setAttribute('nuvola-watch', 'yes')
+          watch.addEventListener('mouseenter', this._updateCachedStars.bind(this))  // Save rating when mouse enters
+          watch.addEventListener('mousedown', this._updateCachedStars.bind(this))  // Update rating when user changes it
+          watch.addEventListener('mouseleave', function () { watch.removeAttribute('nuvola-stars') })
+        }
+      }
     }
     return elements
   }
 
-// Extract data from the web page
+  WebApp._getStars = function (elms, ignoreCached) {
+    if (!ignoreCached && elms.ratingSlider && elms.ratingSlider.parentNode.hasAttribute('nuvola-stars')) {
+      return elms.ratingSlider.parentNode.getAttribute('nuvola-stars')
+    }
+    return elms.ratingButton ? elms.ratingButton.getAttribute('aria-valuenow') : 0
+  }
+
+  WebApp._updateCachedStars = function () {
+    var elements = this._getPlayerElements()
+    if (elements.ratingSlider) {
+      elements.ratingSlider.parentNode.setAttribute('nuvola-stars', this._getStars(elements, true))
+    }
+  }
+
+  WebApp._parseMediaDuration = function (elms) {
+    var time = [null, null]
+    if (elms.mediaDuration) {
+      var parts = elms.mediaDuration.textContent.split('/')
+      time = [Nuvola.parseTimeUsec(parts[0]), Nuvola.parseTimeUsec(parts[1])]
+      if (time[0] < 0) {
+        time[0] += time[1]
+      }
+    }
+    return time
+  }
+
   WebApp.update = function () {
+    var track = {
+      artLocation: null
+    }
+    var metadataLinks = document.querySelectorAll('div[data-qa-id="playerControlsContainer"] a[data-qa-id="metadataTitleLink"]')
+    track.title = metadataLinks[0] ? metadataLinks[0].textContent : null
+    track.artist = metadataLinks[1] ? metadataLinks[1].textContent : null
+    track.album = metadataLinks[2] ? metadataLinks[2].textContent : null
+    var artContainers = document.querySelectorAll('div[data-qa-id="metadataPosterCard--music"] div')
+    for (var elm of artContainers) {
+      if (elm.style.backgroundImage) {
+        var artLocation = elm.style.backgroundImage.substr(5, elm.style.backgroundImage.length - 5 - 2)
+        if (artLocation.startsWith('blob:')) {
+          if (this.albumArt.url === artLocation) {
+            track.artLocation = this.albumArt.data
+          } else {
+            this._downloadAlbumArt(artLocation)
+          }
+        } else {
+          track.artLocation = artLocation
+        }
+        break
+      }
+    }
+
     var playerElements = this._getPlayerElements()
-    // Playback state
     var state = PlaybackState.UNKNOWN
-    if (playerElements.play && !this._isAvailable(playerElements.play)) {
-      state = PlaybackState.PLAYING
-    } else if (playerElements.pause && !this._isAvailable(playerElements.pause)) {
+    if (playerElements.play) {
       state = PlaybackState.PAUSED
+    } else if (playerElements.pause) {
+      state = PlaybackState.PLAYING
     }
+
+    var time = this._parseMediaDuration(playerElements)
+    track.length = time[1]
+
+    var stars = this._getStars(playerElements)
+    Nuvola.actions.updateState(ACTION_RATING, 1 * stars)
+    track.rating = stars / 5
+
+    player.setTrack(track)
+    player.setTrackPosition(time[0])
     player.setPlaybackState(state)
-    // Track informations
-    var posterElement = null
-    if (playerElements.player) {
-      posterElement = playerElements.player.querySelector('.media-poster')
-    }
-    player.setTrack({
-      title: this._getAttribute(posterElement, 'data-title'),
-      artist: this._getAttribute(posterElement, 'data-grandparent-title'),
-      album: this._getAttribute(posterElement, 'data-parent-title'),
-      artLocation: this._getAttribute(posterElement, 'data-image-url')
-    })
-    // Player actions
-    player.setCanPlay(this._isAvailable(playerElements.play) || this._isAvailable(playerElements.shuffle))
-    player.setCanPause(this._isAvailable(playerElements.pause))
-    player.setCanGoPrev(this._isAvailable(playerElements.previous))
-    player.setCanGoNext(this._isAvailable(playerElements.next))
-    // Schedule the next update
+    var volume = playerElements.volumeSliderButton
+    player.updateVolume(volume ? volume.getAttribute('aria-valuenow') / 100 : null)
+
+    player.setCanPlay(!!playerElements.play)
+    player.setCanPause(!!playerElements.pause)
+    player.setCanGoPrev(playerElements.previous)
+    player.setCanGoNext(playerElements.next)
+    player.setCanSeek(!!playerElements.trackSeekBar)
+    player.setCanChangeVolume(!!playerElements.volumeSlider)
+    player.setCanRate(!!playerElements.ratingSlider)
+    Nuvola.actions.updateEnabledFlag(ACTION_RATING, !!playerElements.ratingSlider)
+
     setTimeout(this.update.bind(this), 500)
   }
 
-// Handler of playback actions
   WebApp._onActionActivated = function (emitter, name, param) {
     var playerElements = this._getPlayerElements()
     switch (name) {
       case PlayerAction.TOGGLE_PLAY:
-        if (this._isAvailable(playerElements.play)) {
+        if (playerElements.play) {
           Nuvola.clickOnElement(playerElements.play)
-        } else if (this._isAvailable(playerElements.pause)) {
+        } else if (playerElements.pause) {
           Nuvola.clickOnElement(playerElements.pause)
-        } else {
-          Nuvola.clickOnElement(playerElements.shuffle)
         }
         break
       case PlayerAction.PLAY:
-        if (this._isAvailable(playerElements.play)) {
-          Nuvola.clickOnElement(playerElements.play)
-        } else {
-          Nuvola.clickOnElement(playerElements.shuffle)
-        }
+        Nuvola.clickOnElement(playerElements.play)
         break
       case PlayerAction.PAUSE:
         Nuvola.clickOnElement(playerElements.pause)
         break
       case PlayerAction.STOP:
-        Nuvola.clickOnElement(playerElements.stop)
+        Nuvola.clickOnElement(playerElements.pause)
         break
       case PlayerAction.PREV_SONG:
         Nuvola.clickOnElement(playerElements.previous)
@@ -177,7 +259,40 @@
       case PlayerAction.NEXT_SONG:
         Nuvola.clickOnElement(playerElements.next)
         break
+      case PlayerAction.SEEK:
+        var timeTotal = this._parseMediaDuration(playerElements)[1]
+        if (timeTotal && param >= 0 && param <= timeTotal) {
+          Nuvola.clickOnElement(playerElements.trackSeekBar, param / timeTotal, 0.5)
+        }
+        break
+      case PlayerAction.CHANGE_VOLUME:
+        Nuvola.clickOnElement(playerElements.volumeSlider, param, 0.5)
+        break
+      case ACTION_RATING:
+        try {
+          this._onRatingSet(emitter, param / 5)
+          this._updateCachedStars()
+        } catch (e) {}
+        break
     }
+  }
+
+  WebApp._onRatingSet = function (emitter, rating) {
+    var playerElements = this._getPlayerElements()
+    var pos = 0
+    if (rating < 0.22) {
+      pos = 0.1
+    } else if (rating < 0.42) {
+      pos = 0.3
+    } else if (rating < 0.62) {
+      pos = 0.5
+    } else if (rating < 0.82) {
+      pos = 0.7
+    } else {
+      pos = 0.9
+    }
+    console.log(pos)
+    Nuvola.clickOnElement(playerElements.ratingSlider, pos, 0.5)
   }
 
   WebApp.start()

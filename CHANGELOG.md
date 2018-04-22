@@ -1,7 +1,12 @@
 Changelog
 =========
 
-  * Switched to Chromium engine.
+  * Switched to Chromium engine for playback without Flash plugin.
+  * New maintainer: Jiří Janoušek. Thanks to SkyghiS for his previous maintenance.
+  * Updated to integrate Plex Music server version 1.12.2.4929.
+  * The track progress bar was integrated.
+  * The volume bar was integrated.
+  * Track rating was integrated.
 
 1.3 - February 12th, 2017
 -------------------------
