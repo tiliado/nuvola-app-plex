@@ -4,7 +4,7 @@
   "maintainer_name": "Jiří Janoušek",
   "maintainer_link": "https://github.com/fenryxo",
   "version_major": 1,
-  "version_minor": 3,
+  "version_minor": 4,
   "api_major": 4,
   "api_minor": 11,
   "requirements": "Chromium[65] Codec[MP3] Feature[MSE]",

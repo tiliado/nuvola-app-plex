@@ -1,6 +1,9 @@
 Changelog
 =========
 
+1.4 - June 12th, 2018
+---------------------
+
   * Switched to Chromium engine for playback without Flash plugin.
   * New maintainer: Jiří Janoušek. Thanks to SkyghiS for his previous maintenance.
   * Updated to integrate Plex Music server version 1.12.2.4929.
