@@ -9,6 +9,7 @@
   "api_minor": 11,
   "requirements": "Chromium[65] Codec[MP3] Feature[MSE]",
   "categories": "AudioVideo;Audio;",
+  "dark_theme": true,
   "license": "2-Clause BSD",
   "build": {
     "icons": [
