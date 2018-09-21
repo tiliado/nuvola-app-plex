@@ -129,6 +129,7 @@
     elements.previous = getButton('previous')
     elements.next = getButton('next')
     elements.shuffle = getButton('shuffle')
+    elements.repeat = getButton('repeat') || getButton('repeatOne')
     if (elements.player) {
       elements.mediaDuration = elements.player.querySelector('button[data-qa-id="mediaDuration"]')
       elements.trackSeekBar = document.querySelector('div[class*="SeekBar-seekBarTrack"]')
@@ -236,6 +237,10 @@
     player.setCanShuffle(shuffle !== null)
     player.setShuffleState(shuffle)
 
+    var repeat = this._getRepeat()
+    player.setCanRepeat(repeat !== null)
+    player.setRepeatState(repeat)
+
     setTimeout(this.update.bind(this), 500)
   }
 
@@ -249,6 +254,24 @@
       }
     }
     return false
+  }
+
+  WebApp._getRepeat = function () {
+    var elm = this._getPlayerElements().repeat
+    var active = this._classListIncludes(elm, 'isActive')
+    if (active === null) {
+      return null
+    }
+    if (!active) {
+      return Nuvola.PlayerRepeat.NONE
+    }
+    return elm.getAttribute('data-qa-id') === 'repeatButton' ? Nuvola.PlayerRepeat.PLAYLIST : Nuvola.PlayerRepeat.TRACK
+  }
+
+  WebApp._setRepeat = function (repeat) {
+    while (this._getRepeat() !== repeat) {
+      Nuvola.clickOnElement(this._getPlayerElements().repeat)
+    }
   }
 
   WebApp._onActionActivated = function (emitter, name, param) {
@@ -287,6 +310,9 @@
         break
       case PlayerAction.SHUFFLE:
         Nuvola.clickOnElement(playerElements.shuffle)
+        break
+      case PlayerAction.REPEAT:
+        this._setRepeat(param)
         break
       case ACTION_RATING:
         try {
