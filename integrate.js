@@ -128,6 +128,7 @@
     elements.pause = getButton('pause')
     elements.previous = getButton('previous')
     elements.next = getButton('next')
+    elements.shuffle = getButton('shuffle')
     if (elements.player) {
       elements.mediaDuration = elements.player.querySelector('button[data-qa-id="mediaDuration"]')
       elements.trackSeekBar = document.querySelector('div[class*="SeekBar-seekBarTrack"]')
@@ -231,7 +232,23 @@
     player.setCanRate(!!playerElements.ratingSlider)
     Nuvola.actions.updateEnabledFlag(ACTION_RATING, !!playerElements.ratingSlider)
 
+    var shuffle = this._classListIncludes(playerElements.shuffle, 'isActive')
+    player.setCanShuffle(shuffle !== null)
+    player.setShuffleState(shuffle)
+
     setTimeout(this.update.bind(this), 500)
+  }
+
+  WebApp._classListIncludes = function (elm, substring) {
+    if (!elm) {
+      return null
+    }
+    for (var name of elm.classList) {
+      if (name.includes(substring)) {
+        return true
+      }
+    }
+    return false
   }
 
   WebApp._onActionActivated = function (emitter, name, param) {
@@ -267,6 +284,9 @@
         break
       case PlayerAction.CHANGE_VOLUME:
         Nuvola.clickOnElement(playerElements.volumeSlider, param, 0.5)
+        break
+      case PlayerAction.SHUFFLE:
+        Nuvola.clickOnElement(playerElements.shuffle)
         break
       case ACTION_RATING:
         try {
