@@ -1,4 +1,4 @@
-Plex Music • Nuvola Apps Runtime
+Plex Music • Nuvola Apps Runtime [![CircleCI](https://circleci.com/gh/tiliado/nuvola-app-plex/tree/master.svg?style=svg)](https://circleci.com/gh/tiliado/nuvola-app-plex/tree/master)
 =================================
 
 Integration of Plex Music into your linux desktop via
