@@ -26,21 +26,21 @@
 (function (Nuvola) {
   'use strict'
 
-  var _ = Nuvola.Translate.gettext
-  var ngettext = Nuvola.Translate.ngettext
+  const _ = Nuvola.Translate.gettext
+  const ngettext = Nuvola.Translate.ngettext
 
-  var ACTION_RATING = 'rating'
-  var ADDRESS = 'app.address'
-  var ADDRESS_DEFAULT = 'http://localhost:32400/web'
+  const ACTION_RATING = 'rating'
+  const ADDRESS = 'app.address'
+  const ADDRESS_DEFAULT = 'http://localhost:32400/web'
 
   // Create media player component
-  var player = Nuvola.$object(Nuvola.MediaPlayer)
+  const player = Nuvola.$object(Nuvola.MediaPlayer)
 
   // Handy aliases
-  var PlaybackState = Nuvola.PlaybackState
-  var PlayerAction = Nuvola.PlayerAction
+  const PlaybackState = Nuvola.PlaybackState
+  const PlayerAction = Nuvola.PlayerAction
 
-  var WebApp = Nuvola.$WebApp()
+  const WebApp = Nuvola.$WebApp()
 
   WebApp._onInitAppRunner = function (emitter) {
     Nuvola.WebApp._onInitAppRunner.call(this, emitter)
@@ -48,15 +48,15 @@
     Nuvola.core.connect('InitializationForm', this)
     Nuvola.core.connect('PreferencesForm', this)
 
-    var ratingOptions = []
-    for (var stars = 0; stars < 6; stars++) {
+    const ratingOptions = []
+    for (let stars = 0; stars < 6; stars++) {
       ratingOptions.push([
         stars, // stateId
         /// Star rating, {1} is a placeholder for a number
         Nuvola.format(ngettext('Rating: {1} star', 'Rating: {1} stars', stars), stars), // label
         null, // mnemo_label
         null, // icon
-        null  // keybinding
+        null // keybinding
       ])
     }
     Nuvola.actions.addRadioAction('playback', 'win', ACTION_RATING, 0, ratingOptions)
@@ -86,7 +86,7 @@
   WebApp._onInitWebWorker = function (emitter) {
     Nuvola.WebApp._onInitWebWorker.call(this, emitter)
 
-    var state = document.readyState
+    const state = document.readyState
     if (state === 'interactive' || state === 'complete') {
       this._onPageReady()
     } else {
@@ -96,11 +96,11 @@
   }
 
   WebApp._onPageReady = function () {
-    this.albumArt = {url: null, data: null}
+    this.albumArt = { url: null, data: null }
     Nuvola.actions.connect('ActionActivated', this)
 
-    var actions = []
-    for (var i = 0; i <= 5; i++) {
+    const actions = []
+    for (let i = 0; i <= 5; i++) {
       actions.push(ACTION_RATING + '::' + i)
     }
     player.addExtraActions(actions)
@@ -119,9 +119,9 @@
   }
 
   WebApp._getPlayerElements = function () {
-    var elements = { player: document.querySelector('div[data-qa-id="playerControlsContainer"]') }
-    var getButton = (name) => {
-      var elm = elements.player && elements.player.querySelector('button[data-qa-id="' + name + 'Button"]')
+    const elements = { player: document.querySelector('div[data-qa-id="playerControlsContainer"]') }
+    const getButton = (name) => {
+      const elm = elements.player && elements.player.querySelector('button[data-qa-id="' + name + 'Button"]')
       return elm && !elm.disabled ? elm : null
     }
     elements.play = getButton('resume')
@@ -140,11 +140,11 @@
 
       if (elements.ratingSlider) {
         // Cache the current rating when mouse enters the rating slider because its value then follows mouse cursor.
-        let watch = elements.ratingSlider.parentNode
+        const watch = elements.ratingSlider.parentNode
         if (!watch.getAttribute('nuvola-watch')) {
           watch.setAttribute('nuvola-watch', 'yes')
-          watch.addEventListener('mouseenter', this._updateCachedStars.bind(this))  // Save rating when mouse enters
-          watch.addEventListener('mousedown', this._updateCachedStars.bind(this))  // Update rating when user changes it
+          watch.addEventListener('mouseenter', this._updateCachedStars.bind(this)) // Save rating when mouse enters
+          watch.addEventListener('mousedown', this._updateCachedStars.bind(this)) // Update rating when user changes it
           watch.addEventListener('mouseleave', function () { watch.removeAttribute('nuvola-stars') })
         }
       }
@@ -160,16 +160,16 @@
   }
 
   WebApp._updateCachedStars = function () {
-    var elements = this._getPlayerElements()
+    const elements = this._getPlayerElements()
     if (elements.ratingSlider) {
       elements.ratingSlider.parentNode.setAttribute('nuvola-stars', this._getStars(elements, true))
     }
   }
 
   WebApp._parseMediaDuration = function (elms) {
-    var time = [null, null]
+    let time = [null, null]
     if (elms.mediaDuration) {
-      var parts = elms.mediaDuration.textContent.split('/')
+      const parts = elms.mediaDuration.textContent.split('/')
       time = [Nuvola.parseTimeUsec(parts[0]), Nuvola.parseTimeUsec(parts[1])]
       if (time[0] < 0) {
         time[0] += time[1]
@@ -179,17 +179,17 @@
   }
 
   WebApp.update = function () {
-    var track = {
+    const track = {
       artLocation: null
     }
-    var metadataLinks = document.querySelectorAll('div[data-qa-id="playerControlsContainer"] a[data-qa-id="metadataTitleLink"]')
+    const metadataLinks = document.querySelectorAll('div[data-qa-id="playerControlsContainer"] a[data-qa-id="metadataTitleLink"]')
     track.title = metadataLinks[0] ? metadataLinks[0].textContent : null
     track.artist = metadataLinks[1] ? metadataLinks[1].textContent : null
     track.album = metadataLinks[2] ? metadataLinks[2].textContent : null
-    var artContainers = document.querySelectorAll('div[data-qa-id="metadataPosterCard--music"] div')
-    for (var elm of artContainers) {
+    const artContainers = document.querySelectorAll('div[data-qa-id="metadataPosterCard--music"] div')
+    for (const elm of artContainers) {
       if (elm.style.backgroundImage) {
-        var artLocation = elm.style.backgroundImage.substr(5, elm.style.backgroundImage.length - 5 - 2)
+        const artLocation = elm.style.backgroundImage.substr(5, elm.style.backgroundImage.length - 5 - 2)
         if (artLocation.startsWith('blob:')) {
           if (this.albumArt.url === artLocation) {
             track.artLocation = this.albumArt.data
@@ -203,25 +203,25 @@
       }
     }
 
-    var playerElements = this._getPlayerElements()
-    var state = PlaybackState.UNKNOWN
+    const playerElements = this._getPlayerElements()
+    let state = PlaybackState.UNKNOWN
     if (playerElements.play) {
       state = PlaybackState.PAUSED
     } else if (playerElements.pause) {
       state = PlaybackState.PLAYING
     }
 
-    var time = this._parseMediaDuration(playerElements)
+    const time = this._parseMediaDuration(playerElements)
     track.length = time[1]
 
-    var stars = this._getStars(playerElements)
+    const stars = this._getStars(playerElements)
     Nuvola.actions.updateState(ACTION_RATING, 1 * stars)
     track.rating = stars / 5
 
     player.setTrack(track)
     player.setTrackPosition(time[0])
     player.setPlaybackState(state)
-    var volume = playerElements.volumeSliderButton
+    const volume = playerElements.volumeSliderButton
     player.updateVolume(volume ? volume.getAttribute('aria-valuenow') / 100 : null)
 
     player.setCanPlay(!!playerElements.play)
@@ -233,11 +233,11 @@
     player.setCanRate(!!playerElements.ratingSlider)
     Nuvola.actions.updateEnabledFlag(ACTION_RATING, !!playerElements.ratingSlider)
 
-    var shuffle = this._classListIncludes(playerElements.shuffle, 'isActive')
+    const shuffle = this._classListIncludes(playerElements.shuffle, 'isActive')
     player.setCanShuffle(shuffle !== null)
     player.setShuffleState(shuffle)
 
-    var repeat = this._getRepeat()
+    const repeat = this._getRepeat()
     player.setCanRepeat(repeat !== null)
     player.setRepeatState(repeat)
 
@@ -248,7 +248,7 @@
     if (!elm) {
       return null
     }
-    for (var name of elm.classList) {
+    for (const name of elm.classList) {
       if (name.includes(substring)) {
         return true
       }
@@ -257,8 +257,8 @@
   }
 
   WebApp._getRepeat = function () {
-    var elm = this._getPlayerElements().repeat
-    var active = this._classListIncludes(elm, 'isActive')
+    const elm = this._getPlayerElements().repeat
+    const active = this._classListIncludes(elm, 'isActive')
     if (active === null) {
       return null
     }
@@ -275,7 +275,7 @@
   }
 
   WebApp._onActionActivated = function (emitter, name, param) {
-    var playerElements = this._getPlayerElements()
+    const playerElements = this._getPlayerElements()
     switch (name) {
       case PlayerAction.TOGGLE_PLAY:
         if (playerElements.play) {
@@ -299,12 +299,13 @@
       case PlayerAction.NEXT_SONG:
         Nuvola.clickOnElement(playerElements.next)
         break
-      case PlayerAction.SEEK:
-        var timeTotal = this._parseMediaDuration(playerElements)[1]
+      case PlayerAction.SEEK: {
+        const timeTotal = this._parseMediaDuration(playerElements)[1]
         if (timeTotal && param >= 0 && param <= timeTotal) {
           Nuvola.clickOnElement(playerElements.trackSeekBar, param / timeTotal, 0.5)
         }
         break
+      }
       case PlayerAction.CHANGE_VOLUME:
         Nuvola.clickOnElement(playerElements.volumeSlider, param, 0.5)
         break
@@ -324,8 +325,8 @@
   }
 
   WebApp._onRatingSet = function (emitter, rating) {
-    var playerElements = this._getPlayerElements()
-    var pos = 0
+    const playerElements = this._getPlayerElements()
+    let pos = 0
     if (rating < 0.22) {
       pos = 0.1
     } else if (rating < 0.42) {
@@ -342,4 +343,4 @@
   }
 
   WebApp.start()
-})(this)  // function(Nuvola)
+})(this) // function(Nuvola)
