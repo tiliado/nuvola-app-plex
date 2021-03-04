@@ -1,6 +1,8 @@
 Plex Changelog
 ==============
 
+  * Plex app is deprecated. Issue: tiliado/nuvolaplayer#631
+
 1.5 - October 14th, 2018
 ------------------------
 
